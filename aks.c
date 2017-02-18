@@ -2,7 +2,7 @@
 // aks n-gram extractor
 // version 1.0
 // 17 February 2017
-// by Dr. Christopher Handy
+// by Christopher Handy
 // **************************************
 // To compile: gcc aks.c -o aks
 // **************************************
@@ -208,24 +208,24 @@ return header;
 }
 
 void reset_list(struct akshara* header, struct akshara* current)
-{
-struct akshara *temp_ptr;
-temp_ptr = (Akshara *)malloc(sizeof(Akshara));
+	{
+	struct akshara *temp_ptr;
+	temp_ptr = (Akshara *)malloc(sizeof(Akshara));
 
-if(temp_ptr == NULL)
-   printf("nFailed to Allocate Memory");
+	if(temp_ptr == NULL)
+	printf("nFailed to Allocate Memory");
  
- current=header;
+ 	current=header;
    
- while(current!=NULL)
- {
- temp_ptr=current->next;
- free(current);
- }
+ 	while(current!=NULL)
+ 	{
+	temp_ptr=current->next;
+	free(current);
+	}
  
-free(header);
-free(temp_ptr); 
-}
+ 	free(header);
+	free(temp_ptr); 
+	}
 
 wchar_t * write_ngram(struct akshara* current, int n, int delimiter_flag)
 {
