@@ -144,68 +144,65 @@ typedef struct glyph Glyph;
 ///////////////////////////////////////////
 
 int glyph_add(Glyph *ak, wchar_t newchar)
-{
-ak->component[ak->position]=newchar;
-ak->position++;
-ak->total_components++;
-ak->component[ak->total_components]='\0';
+	{
+	ak->component[ak->position]=newchar;
+	ak->position++;
+	ak->total_components++;
+	ak->component[ak->total_components]='\0';
 	
-return 0;
-}
+	return 0;
+	}
 
 int glyph_reset(Glyph *ak)
-{
-ak->position=0;
-ak->total_components=0;
+	{
+	ak->position=0;
+	ak->total_components=0;
 
-ak->initial_r=0;
-//ak->major_conjunct;
-//ak->vowels;
-ak->final_present=0;
-ak->strength=0;
-ak->tone=0;
+	ak->initial_r=0;
 
-return 0;
-}
+	ak->final_present=0;
+	ak->strength=0;
+	ak->tone=0;
+
+	return 0;
+	}
 
 ///////////////////////////
 // GLOBALS
 //////////////////////////
 
 struct akshara* insert_akshara(wchar_t insert_value[], struct akshara* current, struct akshara* header)//wchar_t newchar)
-{
-struct akshara *new_node;
-new_node = (Akshara *)malloc(sizeof(Akshara));
+	{
+	struct akshara *new_node;
+	new_node = (Akshara *)malloc(sizeof(Akshara));
 
-if(new_node == NULL)
-   printf("nFailed to Allocate Memory");
+	if(new_node == NULL)
+	printf("nFailed to Allocate Memory");
 
-// printf("nEnter the data : ");
-// scanf("%d",&new_node->data);
-   wcscpy(new_node->component, insert_value);
+	wcscpy(new_node->component, insert_value);
 
- new_node->next=NULL;
+ 	new_node->next=NULL;
 
- if(header==NULL)
- {
-   header=new_node;
-   current=new_node;
- return header;
- }
- else
- {
- struct akshara *temp;
-   temp = header;
-     while(temp->next!=NULL)
-     {
-     temp = temp->next;
-     }
-   temp->next = new_node;
+ 	if(header==NULL)
+ 		{
+		header=new_node;
+		current=new_node;
+		return header;
+		}
+	else
+		{
+		struct akshara *temp;
+		temp = header;
+		while(temp->next!=NULL)
+			{
+			temp = temp->next;
+			}
+		temp->next = new_node;
 
-return header; 
-}
+		return header; 
+		}
  
-}
+	}
 
 void reset_list(struct akshara* header, struct akshara* current)
 	{
@@ -218,21 +215,21 @@ void reset_list(struct akshara* header, struct akshara* current)
  	current=header;
    
  	while(current!=NULL)
- 	{
-	temp_ptr=current->next;
-	free(current);
-	}
+ 		{
+		temp_ptr=current->next;
+		free(current);
+		}
  
  	free(header);
 	free(temp_ptr); 
 	}
 
 wchar_t * write_ngram(struct akshara* current, int n, int delimiter_flag)
-{
-Akshara * tempcursor;
+	{
+	Akshara * tempcursor;
 
-int malloc_value=(n*MALLOC_MULT); // n value times max. possible unicode chars
-						 // per glyph (16?) * max. bytesize per char (4)
+	int malloc_value=(n*MALLOC_MULT); // n value times max. possible chars
+						 		// per glyph (16?) * max. bytesize per char (4)
 // NGRAM_MALLOC
 wchar_t *ngram = malloc(malloc_value); // value should be changed to reflect
 								// the amount of memory actually needed
@@ -241,19 +238,19 @@ wchar_t *ngram = malloc(malloc_value); // value should be changed to reflect
 tempcursor = current;
 //printf("\n");
 
-int x=0;
-while(x<n && tempcursor != NULL)
-{
-
-if(x>0 && delimiter_flag==1)
+	int x=0;
+	while(x<n && tempcursor != NULL)
 	{
-	wcscat(ngram, L"_");
-	} // add delimiter if not first item and delimiter_flag is on
 
-wcscat(ngram, tempcursor->component);
-tempcursor = tempcursor->next;
-x++;
-}
+	if(x>0 && delimiter_flag==1)
+		{
+		wcscat(ngram, L"_");
+		} // add delimiter if not first item and delimiter_flag is on
+
+	wcscat(ngram, tempcursor->component);
+	tempcursor = tempcursor->next;
+	x++;
+	}
 
 return ngram;
 }
@@ -300,66 +297,57 @@ char cmp_dir1[MAX_STRING_LENGTH];
 int delimiter_flag=0;
 
 if(argc>1)
-{
-if(strcmp(argv[1],"chinese")==0)
+	{
+	if(strcmp(argv[1],"chinese")==0)
+		{
+		language_choice=CHINESE;
+		}
+	else if(strcmp(argv[1],"tibetan_roman")==0)
+		{
+		language_choice=TIBETAN_ROMAN;
+		delimiter_flag=1;
+		}
+	else if(strcmp(argv[1],"tibetan_uchen")==0)
+		{
+		language_choice=TIBETAN_UCHEN;
+		}
+	else if(strcmp(argv[1],"sanskrit_unicode")==0)
+		{
+		language_choice=SANSKRIT_UNICODE;
+		}
+	else if(strcmp(argv[1],"sanskrit_deva")==0)
+		{
+		language_choice=SANSKRIT_DEVA;
+		}
+	else
+		{
+		printf("\nLanguage not recognized!");
+		}
+	}
+else
 	{
 	language_choice=CHINESE;
 	}
-else if(strcmp(argv[1],"tibetan_roman")==0)
-	{
-	language_choice=TIBETAN_ROMAN;
-	delimiter_flag=1;
-	}
-else if(strcmp(argv[1],"tibetan_uchen")==0)
-	{
-	language_choice=TIBETAN_UCHEN;
-	}
-else if(strcmp(argv[1],"sanskrit_unicode")==0)
-	{
-	language_choice=SANSKRIT_UNICODE;
-	}
-else if(strcmp(argv[1],"sanskrit_deva")==0)
-	{
-	language_choice=SANSKRIT_DEVA;
-	}
-else
-	{
-	printf("\nLanguage not recognized!");
-	}
-	
-//printf("\n0 RESERVED");
-//printf("\n1 CHINESE");
-//printf("\n2 TIBETAN_ROMAN");
-//printf("\n3 TIBETAN_UCHEN");
-//printf("\n4 SANSKRIT_UNICODE");
-//printf("\n5 SANSKRIT_DEVA");
-
-//mygetch();
-}
-else
-{
-language_choice=CHINESE;
-}
 
 if(argc>2)
-{
-ngram_integer=atoi(argv[2]);
-}
+	{
+	ngram_integer=atoi(argv[2]);
+	}
 else
-{
-ngram_integer=1;
-}
+	{
+	ngram_integer=1;
+	}
 
 if(argc>3)
-{
-strncpy(cmp_dir1, argv[3], MAX_STRING_LENGTH-1);
-cmp_dir1[MAX_STRING_LENGTH-1] = '\0';
-}
-else
-{
-strncpy(cmp_dir1, DEFAULT_TEXT_CHINESE, MAX_STRING_LENGTH-1);
-cmp_dir1[MAX_STRING_LENGTH-1] = '\0';
-}
+	{
+	strncpy(cmp_dir1, argv[3], MAX_STRING_LENGTH-1);
+	cmp_dir1[MAX_STRING_LENGTH-1] = '\0';
+	}
+	else
+	{
+	strncpy(cmp_dir1, DEFAULT_TEXT_CHINESE, MAX_STRING_LENGTH-1);
+	cmp_dir1[MAX_STRING_LENGTH-1] = '\0';
+	}
 
 printf("Language set to %d\n", language_choice);
 
@@ -372,19 +360,16 @@ struct tm * timeinfo;
 
 
 FILE * fin;
-//FILE * fout;
 FILE * fout_ngram[20];
 
 wchar_t c;
 wchar_t prev_char=0;
 
-//wint_t c;
-//wint_t prev_char=0;
-
-
+// THESE LOCALE SETTINGS MAY NEED TO BE MODIFIED FOR SOME SYSTEMS
+// IF YOU SEE 'GARBAGE' CHARACTERS IN THE OUTPUT, YOU NEED TO MAKE
+// SURE YOUR LOCALE SETTINGS ARE USING UTF-8
 //setlocale(LC_ALL, "en_US.utf8");
 setlocale(LC_ALL, "");
-
 
 ////////////////
 
@@ -402,8 +387,6 @@ DIR* FD2;
 ////////////////
 
 ////////////////
-//FILE *in;
-//FILE *out;
 char *charstream;
 int x=0;
 int s=0;
@@ -433,13 +416,13 @@ char ngram_as_string[20][MAX_STRING_LENGTH];
     time(&start);
     first = CPU_TIME;
 
-/* Opening common file for writing */
-    common_file = fopen("testcommon.txt", "w");
-    if (common_file == NULL)
-    {
-        fprintf(stderr, "Error : Failed to open common_file - %s\n", strerror(errno));
-        return 1;
-    }
+///* Opening common file for writing */
+//    common_file = fopen("testcommon.txt", "w");
+//    if (common_file == NULL)
+//    {
+//        fprintf(stderr, "Error : Failed to open common_file - %s\n", //strerror(errno));
+//        return 1;
+//    }
     
 //////////////////
 // READ FIRST DIRECTORY
@@ -448,16 +431,14 @@ char ngram_as_string[20][MAX_STRING_LENGTH];
 /////// OPEN DIRECTORIES
 
     /* Scanning the input directories */
-    //if (NULL == (FD1 = scandir(cmp_dir1))) 
-    //if (NULL == (FD1 = scandir(".", cmp_dir1, 0, alphasort))
+    
     if (NULL == (FD1 = opendir (cmp_dir1))) 
     {
         fprintf(stderr, "Error : Failed to open input directory - %s\n", strerror(errno));
         fclose(common_file);
         return 1;
     }
-    
-//while ((in_file1 = scandir(FD1))) 
+
 while ((in_file1 = readdir(FD1))) 
     {
     
@@ -496,7 +477,7 @@ if (pid == 0) {
 
        //////////////////////    
     
-    int specialx;
+    int specialx; // controls n-gram filenames for n==1 max
     
     for(specialx=0; specialx<ngram_integer; specialx++)
     {
