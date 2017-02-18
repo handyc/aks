@@ -793,7 +793,7 @@ int char_check(wchar_t x, int language_choice)
 {
 switch(language_choice)
 	{
-	case RESERVED:
+	case RESERVED: break;
 	
 	//////////////// Special formatting rules for Chinese Unicode /////////////
 	case CHINESE:
@@ -809,6 +809,7 @@ switch(language_choice)
 	{
 	return CHIN_STDCHAR;
 	}
+	break;
 	//////////////// End formatting rules for Chinese Unicode /////////////
 	
 	//////////////// Special formatting rules for Tibetan roman /////////////
@@ -826,7 +827,7 @@ else if(x==' '|| x==L'|' || x=='\n' || x=='-' || x==L',' || x==L'@' || x=='0' ||
 return TIB_ROMAN_SPECIAL;
 }
 else return TIB_ROMAN_SPECIAL;
-
+break;
 	//////////////// End formatting rules for Tibetan roman /////////////
 	
 	//////// Special formatting rules for Tibetan Uchen Unicode /////////////
@@ -851,6 +852,7 @@ else return TIB_ROMAN_SPECIAL;
 	{
 	return TIB_UCHEN_STDCHAR;
 	}
+	break;
 	//////// End formatting rules for Tibetan Uchen Unicode /////////////
 	
 	//////// Special formatting rules for Sanskrit Unicode /////////////
@@ -876,11 +878,12 @@ else if(x=='0' || x=='1' || x=='2' || x=='3' || x=='4' || x=='5' || x=='6' || x=
 return SKT_NUMBER;
 }
 else return SKT_SPECIAL;
+break;
 	//////// End formatting rules for Sanskrit Unicode /////////////
 	
 	//////// Special formatting rules for Sanskrit Devanagari /////////////
 	case SANSKRIT_DEVA:
-	
+	break;
 	// NOT YET IMPLEMENTED
 	
 	//////// End formatting rules for Sanskrit Devanagari /////////////
