@@ -853,7 +853,7 @@ else return TIB_ROMAN_SPECIAL;
 	}
 	//////// End formatting rules for Tibetan Uchen Unicode /////////////
 	
-	//////// Special formatting rules for Sanskrit Harvard-Kyoto /////////////
+	//////// Special formatting rules for Sanskrit Unicode /////////////
 	case SANSKRIT_UNICODE:
 			if(x==L'k' || x==L'h' || x==L'g' || x==L'ṅ' || x==L'c' || x==L'j' || x==L'ñ' || x==L'ṭ' || x==L'ḍ' || x==L'ṇ' || x==L't' || x==L'd' || x==L'n' || x==L'p' || x==L'b' || x==L'm' || x==L'y' || x==L'r' || x==L'l' || x==L'v' || x==L'ś' || x==L'ṣ' || x==L's')
 {
@@ -876,7 +876,7 @@ else if(x=='0' || x=='1' || x=='2' || x=='3' || x=='4' || x=='5' || x=='6' || x=
 return SKT_NUMBER;
 }
 else return SKT_SPECIAL;
-	//////// End formatting rules for Sanskrit Harvard-Kyoto /////////////
+	//////// End formatting rules for Sanskrit Unicode /////////////
 	
 	//////// Special formatting rules for Sanskrit Devanagari /////////////
 	case SANSKRIT_DEVA:
