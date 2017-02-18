@@ -693,16 +693,7 @@ fclose(fin);
       ngram=write_ngram(curr, specialx+1, delimiter_flag);
       fprintf(fout_ngram[specialx], "%ls\n", ngram);
       }
-      
-      
-      //if(ngram_integer)
-      //{
-      //ngram=write_ngram(curr, ngram_integer);
-      
-      //fprintf(fout_ngram[specialx], "%ls\n", ngram);
-      //fprintf(fout_ngram[specialx], "%s\n", "test");
-      //}
-      
+         
       curr = curr->next ;
            
      // this works, except that 
