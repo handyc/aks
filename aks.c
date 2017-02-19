@@ -2,7 +2,7 @@
 // aks n-gram extractor
 // version 1.0
 // 17 February 2017
-// by Christopher Handy
+// by Dr. Christopher Handy
 // **************************************
 // To compile: gcc aks.c -o aks
 // **************************************
@@ -117,7 +117,9 @@ typedef struct akshara Akshara;
 
 ///////////////////////////////////////////
 typedef struct List {
-    int count;
+    //int count; // changed to long long to allow larger files
+    				// works?
+    long long count;
     Akshara *first;
     Akshara *last;
 } List;
@@ -144,92 +146,95 @@ typedef struct glyph Glyph;
 ///////////////////////////////////////////
 
 int glyph_add(Glyph *ak, wchar_t newchar)
-	{
-	ak->component[ak->position]=newchar;
-	ak->position++;
-	ak->total_components++;
-	ak->component[ak->total_components]='\0';
+{
+ak->component[ak->position]=newchar;
+ak->position++;
+ak->total_components++;
+ak->component[ak->total_components]='\0';
 	
-	return 0;
-	}
+return 0;
+}
 
 int glyph_reset(Glyph *ak)
-	{
-	ak->position=0;
-	ak->total_components=0;
+{
+ak->position=0;
+ak->total_components=0;
 
-	ak->initial_r=0;
+ak->initial_r=0;
+//ak->major_conjunct;
+//ak->vowels;
+ak->final_present=0;
+ak->strength=0;
+ak->tone=0;
 
-	ak->final_present=0;
-	ak->strength=0;
-	ak->tone=0;
-
-	return 0;
-	}
+return 0;
+}
 
 ///////////////////////////
 // GLOBALS
 //////////////////////////
 
 struct akshara* insert_akshara(wchar_t insert_value[], struct akshara* current, struct akshara* header)//wchar_t newchar)
-	{
-	struct akshara *new_node;
-	new_node = (Akshara *)malloc(sizeof(Akshara));
+{
+struct akshara *new_node;
+new_node = (Akshara *)malloc(sizeof(Akshara));
 
-	if(new_node == NULL)
-	printf("nFailed to Allocate Memory");
+if(new_node == NULL)
+   printf("nFailed to Allocate Memory");
 
-	wcscpy(new_node->component, insert_value);
+// printf("nEnter the data : ");
+// scanf("%d",&new_node->data);
+   wcscpy(new_node->component, insert_value);
 
- 	new_node->next=NULL;
+ new_node->next=NULL;
 
- 	if(header==NULL)
- 		{
-		header=new_node;
-		current=new_node;
-		return header;
-		}
-	else
-		{
-		struct akshara *temp;
-		temp = header;
-		while(temp->next!=NULL)
-			{
-			temp = temp->next;
-			}
-		temp->next = new_node;
+ if(header==NULL)
+ {
+   header=new_node;
+   current=new_node;
+ return header;
+ }
+ else
+ {
+ struct akshara *temp;
+   temp = header;
+     while(temp->next!=NULL)
+     {
+     temp = temp->next;
+     }
+   temp->next = new_node;
 
-		return header; 
-		}
+return header; 
+}
  
-	}
+}
 
 void reset_list(struct akshara* header, struct akshara* current)
-	{
-	struct akshara *temp_ptr;
-	temp_ptr = (Akshara *)malloc(sizeof(Akshara));
+{
+struct akshara *temp_ptr;
+temp_ptr = (Akshara *)malloc(sizeof(Akshara));
 
-	if(temp_ptr == NULL)
-	printf("nFailed to Allocate Memory");
+if(temp_ptr == NULL)
+   printf("nFailed to Allocate Memory");
  
- 	current=header;
+ current=header;
    
- 	while(current!=NULL)
- 		{
-		temp_ptr=current->next;
-		free(current);
-		}
+ while(current!=NULL)
+ {
+ temp_ptr=current->next;
+ free(current);
+ }
  
- 	free(header);
-	free(temp_ptr); 
-	}
+free(header);
+free(temp_ptr); 
+}
 
 wchar_t * write_ngram(struct akshara* current, int n, int delimiter_flag)
-	{
-	Akshara * tempcursor;
+{
+Akshara * tempcursor;
 
-	int malloc_value=(n*MALLOC_MULT); // n value times max. possible chars
-						 		// per glyph (16?) * max. bytesize per char (4)
+int malloc_value=(n*MALLOC_MULT); // n value times max. possible unicode chars
+						 // per glyph (16?) * max. bytesize per char (4)
 // NGRAM_MALLOC
 wchar_t *ngram = malloc(malloc_value); // value should be changed to reflect
 								// the amount of memory actually needed
@@ -238,38 +243,40 @@ wchar_t *ngram = malloc(malloc_value); // value should be changed to reflect
 tempcursor = current;
 //printf("\n");
 
-	int x=0;
-	while(x<n && tempcursor != NULL)
+int x=0;
+while(x<n && tempcursor != NULL)
+{
+
+if(x>0 && delimiter_flag==1)
 	{
+	wcscat(ngram, L"_");
+	} // add delimiter if not first item and delimiter_flag is on
 
-	if(x>0 && delimiter_flag==1)
-		{
-		wcscat(ngram, L"_");
-		} // add delimiter if not first item and delimiter_flag is on
-
-	wcscat(ngram, tempcursor->component);
-	tempcursor = tempcursor->next;
-	x++;
-	}
+wcscat(ngram, tempcursor->component);
+tempcursor = tempcursor->next;
+x++;
+}
 
 return ngram;
 }
 
 int char_check(wchar_t x, int language_choice);
 
-int line_counter=0;
-int akshara_count=0;
-int unique_aksharas=0;
+//int line_counter=0;
+//int akshara_count=0;
+//int unique_aksharas=0;
 
 int type_check=0;
 int prev_type=0;
 int prev_used=FIRSTCHAR;
 
-long bytes_read=0;
+// changed below from type long to allow even larger files
+long long bytes_read=0;
 
 #define DEFAULT_TEXT_CHINESE "../texts/chinese/taisho/T24"
 #define DEFAULT_TEXT_TIBETAN_ROMAN "../texts/tibetan/ACIP_KANGYUR_DUMP"
-#define DEFAULT_TEXT_TIBETAN_UCHEN "../texts/tibetan/ACIP_KANGYUR_DUMP_TIB"
+//#define DEFAULT_TEXT_TIBETAN_UCHEN "../texts/tibetan/ACIP_KANGYUR_DUMP_TIB"
+#define DEFAULT_TEXT_TIBETAN_UCHEN "../texts/tibetan/eKanjurFiles/Kanjur8"
 #define DEFAULT_TEXT_SANSKRIT_UNICODE "../texts/sanskrit/mahayana"
 //#define DEFAULT_TEXT_SANSKRIT_DEVA "../texts/sanskrit/mahayana"
 
@@ -297,57 +304,66 @@ char cmp_dir1[MAX_STRING_LENGTH];
 int delimiter_flag=0;
 
 if(argc>1)
-	{
-	if(strcmp(argv[1],"chinese")==0)
-		{
-		language_choice=CHINESE;
-		}
-	else if(strcmp(argv[1],"tibetan_roman")==0)
-		{
-		language_choice=TIBETAN_ROMAN;
-		delimiter_flag=1;
-		}
-	else if(strcmp(argv[1],"tibetan_uchen")==0)
-		{
-		language_choice=TIBETAN_UCHEN;
-		}
-	else if(strcmp(argv[1],"sanskrit_unicode")==0)
-		{
-		language_choice=SANSKRIT_UNICODE;
-		}
-	else if(strcmp(argv[1],"sanskrit_deva")==0)
-		{
-		language_choice=SANSKRIT_DEVA;
-		}
-	else
-		{
-		printf("\nLanguage not recognized!");
-		}
-	}
-else
+{
+if(strcmp(argv[1],"chinese")==0)
 	{
 	language_choice=CHINESE;
 	}
-
-if(argc>2)
+else if(strcmp(argv[1],"tibetan_roman")==0)
 	{
-	ngram_integer=atoi(argv[2]);
+	language_choice=TIBETAN_ROMAN;
+	delimiter_flag=1;
+	}
+else if(strcmp(argv[1],"tibetan_uchen")==0)
+	{
+	language_choice=TIBETAN_UCHEN;
+	}
+else if(strcmp(argv[1],"sanskrit_unicode")==0)
+	{
+	language_choice=SANSKRIT_UNICODE;
+	}
+else if(strcmp(argv[1],"sanskrit_deva")==0)
+	{
+	language_choice=SANSKRIT_DEVA;
 	}
 else
 	{
-	ngram_integer=1;
+	printf("\nLanguage not recognized!");
 	}
+	
+//printf("\n0 RESERVED");
+//printf("\n1 CHINESE");
+//printf("\n2 TIBETAN_ROMAN");
+//printf("\n3 TIBETAN_UCHEN");
+//printf("\n4 SANSKRIT_UNICODE");
+//printf("\n5 SANSKRIT_DEVA");
+
+//mygetch();
+}
+else
+{
+language_choice=CHINESE;
+}
+
+if(argc>2)
+{
+ngram_integer=atoi(argv[2]);
+}
+else
+{
+ngram_integer=1;
+}
 
 if(argc>3)
-	{
-	strncpy(cmp_dir1, argv[3], MAX_STRING_LENGTH-1);
-	cmp_dir1[MAX_STRING_LENGTH-1] = '\0';
-	}
-	else
-	{
-	strncpy(cmp_dir1, DEFAULT_TEXT_CHINESE, MAX_STRING_LENGTH-1);
-	cmp_dir1[MAX_STRING_LENGTH-1] = '\0';
-	}
+{
+strncpy(cmp_dir1, argv[3], MAX_STRING_LENGTH-1);
+cmp_dir1[MAX_STRING_LENGTH-1] = '\0';
+}
+else
+{
+strncpy(cmp_dir1, DEFAULT_TEXT_CHINESE, MAX_STRING_LENGTH-1);
+cmp_dir1[MAX_STRING_LENGTH-1] = '\0';
+}
 
 printf("Language set to %d\n", language_choice);
 
@@ -360,16 +376,22 @@ struct tm * timeinfo;
 
 
 FILE * fin;
-FILE * fout_ngram[20];
+//FILE * fout;
+
+#define MAX_N_SIZE 256 // test for below
+
+FILE * fout_ngram[MAX_N_SIZE];
 
 wchar_t c;
 wchar_t prev_char=0;
 
-// THESE LOCALE SETTINGS MAY NEED TO BE MODIFIED FOR SOME SYSTEMS
-// IF YOU SEE 'GARBAGE' CHARACTERS IN THE OUTPUT, YOU NEED TO MAKE
-// SURE YOUR LOCALE SETTINGS ARE USING UTF-8
+//wint_t c;
+//wint_t prev_char=0;
+
+
 //setlocale(LC_ALL, "en_US.utf8");
 setlocale(LC_ALL, "");
+
 
 ////////////////
 
@@ -387,6 +409,8 @@ DIR* FD2;
 ////////////////
 
 ////////////////
+//FILE *in;
+//FILE *out;
 char *charstream;
 int x=0;
 int s=0;
@@ -395,10 +419,11 @@ int file_length=0;
 unsigned long long total_strings=0;
 
 
+
 char filetoopen[MAX_STRING_LENGTH];
-char filetowrite[20][MAX_STRING_LENGTH];
-char filetowrite_ngram[20][MAX_STRING_LENGTH];
-char ngram_as_string[20][MAX_STRING_LENGTH];
+char filetowrite[MAX_N_SIZE][MAX_STRING_LENGTH];
+char filetowrite_ngram[MAX_N_SIZE][MAX_STRING_LENGTH];
+char ngram_as_string[MAX_N_SIZE][MAX_STRING_LENGTH];
 
 /////////////////
 
@@ -416,13 +441,13 @@ char ngram_as_string[20][MAX_STRING_LENGTH];
     time(&start);
     first = CPU_TIME;
 
-///* Opening common file for writing */
-//    common_file = fopen("testcommon.txt", "w");
-//    if (common_file == NULL)
-//    {
-//        fprintf(stderr, "Error : Failed to open common_file - %s\n", //strerror(errno));
-//        return 1;
-//    }
+/* Opening common file for writing */
+    common_file = fopen("testcommon.txt", "w");
+    if (common_file == NULL)
+    {
+        fprintf(stderr, "Error : Failed to open common_file - %s\n", strerror(errno));
+        return 1;
+    }
     
 //////////////////
 // READ FIRST DIRECTORY
@@ -431,14 +456,16 @@ char ngram_as_string[20][MAX_STRING_LENGTH];
 /////// OPEN DIRECTORIES
 
     /* Scanning the input directories */
-    
+    //if (NULL == (FD1 = scandir(cmp_dir1))) 
+    //if (NULL == (FD1 = scandir(".", cmp_dir1, 0, alphasort))
     if (NULL == (FD1 = opendir (cmp_dir1))) 
     {
         fprintf(stderr, "Error : Failed to open input directory - %s\n", strerror(errno));
         fclose(common_file);
         return 1;
     }
-
+    
+//while ((in_file1 = scandir(FD1))) 
 while ((in_file1 = readdir(FD1))) 
     {
     
@@ -477,7 +504,7 @@ if (pid == 0) {
 
        //////////////////////    
     
-    int specialx; // controls n-gram filenames for n==1 max
+    int specialx;
     
     for(specialx=0; specialx<ngram_integer; specialx++)
     {
@@ -693,7 +720,16 @@ fclose(fin);
       ngram=write_ngram(curr, specialx+1, delimiter_flag);
       fprintf(fout_ngram[specialx], "%ls\n", ngram);
       }
-         
+      
+      
+      //if(ngram_integer)
+      //{
+      //ngram=write_ngram(curr, ngram_integer);
+      
+      //fprintf(fout_ngram[specialx], "%ls\n", ngram);
+      //fprintf(fout_ngram[specialx], "%s\n", "test");
+      //}
+      
       curr = curr->next ;
            
      // this works, except that 
@@ -765,7 +801,7 @@ int char_check(wchar_t x, int language_choice)
 {
 switch(language_choice)
 	{
-	case RESERVED: break;
+	case RESERVED:
 	
 	//////////////// Special formatting rules for Chinese Unicode /////////////
 	case CHINESE:
@@ -781,7 +817,6 @@ switch(language_choice)
 	{
 	return CHIN_STDCHAR;
 	}
-	break;
 	//////////////// End formatting rules for Chinese Unicode /////////////
 	
 	//////////////// Special formatting rules for Tibetan roman /////////////
@@ -799,7 +834,7 @@ else if(x==' '|| x==L'|' || x=='\n' || x=='-' || x==L',' || x==L'@' || x=='0' ||
 return TIB_ROMAN_SPECIAL;
 }
 else return TIB_ROMAN_SPECIAL;
-break;
+
 	//////////////// End formatting rules for Tibetan roman /////////////
 	
 	//////// Special formatting rules for Tibetan Uchen Unicode /////////////
@@ -824,10 +859,9 @@ break;
 	{
 	return TIB_UCHEN_STDCHAR;
 	}
-	break;
 	//////// End formatting rules for Tibetan Uchen Unicode /////////////
 	
-	//////// Special formatting rules for Sanskrit Unicode /////////////
+	//////// Special formatting rules for Sanskrit Harvard-Kyoto /////////////
 	case SANSKRIT_UNICODE:
 			if(x==L'k' || x==L'h' || x==L'g' || x==L'ṅ' || x==L'c' || x==L'j' || x==L'ñ' || x==L'ṭ' || x==L'ḍ' || x==L'ṇ' || x==L't' || x==L'd' || x==L'n' || x==L'p' || x==L'b' || x==L'm' || x==L'y' || x==L'r' || x==L'l' || x==L'v' || x==L'ś' || x==L'ṣ' || x==L's')
 {
@@ -850,12 +884,11 @@ else if(x=='0' || x=='1' || x=='2' || x=='3' || x=='4' || x=='5' || x=='6' || x=
 return SKT_NUMBER;
 }
 else return SKT_SPECIAL;
-break;
-	//////// End formatting rules for Sanskrit Unicode /////////////
+	//////// End formatting rules for Sanskrit Harvard-Kyoto /////////////
 	
 	//////// Special formatting rules for Sanskrit Devanagari /////////////
 	case SANSKRIT_DEVA:
-	break;
+	
 	// NOT YET IMPLEMENTED
 	
 	//////// End formatting rules for Sanskrit Devanagari /////////////
