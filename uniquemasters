@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 COUNTER=1
 while [  $COUNTER -lt 9 ]; do

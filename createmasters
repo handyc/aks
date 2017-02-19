@@ -1,13 +1,18 @@
-#!/bin/sh
+#!/bin/bash
+
+SOURCE=$1
+MASTERS=$2
+NVALUE=$3
+mkdir -p $MASTERS
 
 COUNTER=1
-while [  $COUNTER -lt 9 ]; do
+while [  $COUNTER -le "$3" ]; do
 ####### create dictionary files for all texts
 echo "Now processing ngrams of length $COUNTER..."
 
-for f in ./*.$COUNTER.ngram
+for f in $SOURCE/*.$COUNTER.ngram
 do
-cat "$f" >> ./masters/unsorted.$COUNTER.master.txt
+cat "$f" >> $MASTERS/$COUNTER.master.txt
 echo "Added $f to master unsorted list"
 done
 

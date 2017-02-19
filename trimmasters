@@ -1,0 +1,19 @@
+#!/bin/bash
+
+SORTS="$1"
+TRIMS="$2"
+THRESHOLD="1"
+
+mkdir -p $TRIMS
+for f in $SORTS/*.uniq.txt
+do echo "Trimming $f ..."
+while IFS= read -r file_line
+do
+  value=$(echo "$file_line"|awk '{print $1}')
+  if [ "$value" -gt "$THRESHOLD" ]; then
+  echo "$file_line" >> $TRIMS/$(basename "$f").trim.txt
+  else break
+  fi
+done < "$f"
+echo "$f has been trimmed to threshold of $THRESHOLD"
+done

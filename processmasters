@@ -1,0 +1,13 @@
+#!/bin/bash
+
+SOURCE="$1"
+MASTERS="$1/masters"
+SORTS="$1/sorts"
+TRIMS="$1/trims"
+COMPRESS="$1/compress"
+NVALUE="$2"
+
+createmasters $SOURCE $MASTERS $NVALUE
+sortmasters $MASTERS $SORTS
+trimmasters $SORTS $TRIMS
+compressmasters $TRIMS $COMPRESS

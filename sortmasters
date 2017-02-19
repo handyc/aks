@@ -1,0 +1,15 @@
+#!/bin/bash
+#echo $0
+#pwd
+
+MASTERS=$1
+SORTS=$2
+mkdir -p $SORTS
+
+for i in $MASTERS/*.master.txt
+do
+echo "Now sorting $i"
+cat "$i" | sort | uniq -c | sort -rn | awk '{print $1 " " $2}' > $SORTS/$(basename "$i").uniq.txt
+echo "Created unique sorted master for $i"
+done
+echo "Completed sorting of masters."

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+TRIM="$1"
+COMPRESS="$2"
+mkdir -p $COMPRESS
+#cd $COMPRESS
+zip -j $COMPRESS/trims_sample.zip $TRIM/*.trim.txt
