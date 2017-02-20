@@ -217,16 +217,19 @@ temp_ptr = (Akshara *)malloc(sizeof(Akshara));
 if(temp_ptr == NULL)
    printf("nFailed to Allocate Memory");
  
- current=header;
+ //current=header;
    
- while(current!=NULL)
+ while(header!=current)
  {
- temp_ptr=current->next;
- free(current);
+ temp_ptr=header->next;
+ free(header);
+ header=temp_ptr;
  }
  
+//free(header);
+
 free(header);
-free(temp_ptr); 
+//free(temp_ptr); 
 }
 
 wchar_t * write_ngram(struct akshara* current, int n, int delimiter_flag)
@@ -712,7 +715,10 @@ fclose(fin);
 
 	curr = head;
    while(curr) {
-      wchar_t *ngram=malloc(128);
+   
+   // this value should be modified:
+   
+      wchar_t *ngram=malloc(MALLOC_MULT*ngram_integer);
       
       for(specialx=0; specialx<ngram_integer; specialx++)
       {
@@ -741,10 +747,15 @@ fclose(fin);
 
 	//printf("[%d] [%d] closes %s\n", getppid(), getpid(), filetoopen);
 
-	head = NULL;
-	curr = NULL;
+	
 	
 	reset_list(head, curr);
+
+
+head = NULL;
+curr = NULL;
+
+// changed NULLs to *after reset instead of before (made no sense prev)
 
 for(specialx=0; specialx<ngram_integer; specialx++)
     {
