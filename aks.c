@@ -82,7 +82,10 @@
 #define MALLOC_MULT 128 // multiplier for memory allocation based
 						// on maximum chars per syllable
 
-#define MAXIMUM_N_SIZE 32
+//#define MAXIMUM_N_SIZE 4096
+
+#define MAXIMUM_N_SIZE 256
+#define MAX_CHARS_SYLL 10 // maximum number of UTF-8 chars in one syllable
 
 ////////////////////////////////////////
 
@@ -554,10 +557,11 @@ pid_t pid = fork(); // each file gets its own child process,
 			}
 	///////////////////////////////////////////////////////////////////
 
-		time(&end);        // completion time (user)
-		second = CPU_TIME; // completion time (CPU)
+		//time(&end);        // completion time (user)
+		//second = CPU_TIME; // completion time (CPU)
 
-		printf("Finished %s in %d seconds (user), %.2f seconds (CPU)\n", filetoopen, (int)(end - start), (second - first));	
+		//printf("Finished %s in %d seconds (user), %.2f seconds (CPU)\n", filetoopen, (int)(end - start), (second - first));	
+		
 		fclose(fin); // done with input file, close it
 
 	//fprintf(common_file, "\nAnalysis of %s:", filetoopen);
@@ -576,7 +580,7 @@ pid_t pid = fork(); // each file gets its own child process,
 
 		////////////////////////////////
 
-		int specialx=10;
+		int specialx;
     
 		for(specialx=0; specialx<ngram_integer; specialx++)
 			{
@@ -592,36 +596,24 @@ pid_t pid = fork(); // each file gets its own child process,
 		////////////////////////////////   
 		////////////////////////////////       
  
+ //wchar_t *ngram = malloc(128);
+ wchar_t ngram[MAX_CHARS_SYLL*MAXIMUM_N_SIZE];// = malloc(128);
+ 
+ //ngram = malloc(MAX_CHARS_SYLL * (specialx+1) * sizeof(wchar_t));
+ 
 		curr = head;
 		while(curr) 
 			{
-      
       		for(specialx=0; specialx<ngram_integer; specialx++)
       			{
-      			// allocate memory for the ngram to write
-      			//int malloc_value=(ngram_integer*MALLOC_MULT); 
-	  			//wchar_t *ngram = malloc(malloc_value);
-	  
-      			wchar_t *ngram = malloc(specialx+1 * sizeof(wchar_t));
-
-				/*        
-      			//wchar_t *ngram= malloc(size * sizeof(Akshara));
-      			//ngram=write_ngram(curr, specialx+1, delimiter_flag);
-      			*/
-      			
-      			write_ngram(curr, ngram, specialx+1, delimiter_flag);
-      			fprintf(fout_ngram[specialx], "%ls\n", ngram);
-				  
-      			free(ngram); // free the ngram allocated above
+				write_ngram(curr, ngram, specialx+1, delimiter_flag);
+				fwprintf(fout_ngram[specialx], L"%ls\n", ngram);
+				wcscpy (ngram,L"");
       			}
       
       		curr = curr->next ;
-           
-     		// this works, except that 
-     		// b) the function does not check to see if part of n-gram is NULL
-     		// c) if NULL in b, function should exit with error
 			}
-
+//free(ngram); // "double free or corruption"?
 		////////////////////////////////////////////////////////////////////////
 
 		for(specialx=0; specialx<ngram_integer; specialx++)
@@ -630,6 +622,14 @@ pid_t pid = fork(); // each file gets its own child process,
 			}
 	
     	////////////////////////////////////////////////////////////////////////
+
+		time(&end);        // completion time (user)
+		second = CPU_TIME; // completion time (CPU)
+
+		printf("Finished %s in %d seconds (user), %.2f seconds (CPU)\n", filetoopen, (int)(end - start), (second - first));	
+
+
+		////////////////////////////////////////////////////////////////////////
 
 		free_list(head); // free the list of aksharas, we are done    
 		exit(0); // child exits without error
@@ -774,9 +774,10 @@ else return SKT_SPECIAL;
 }
 
 /////////////////////////////////////////////////////
-
 void write_ngram(struct akshara* current, wchar_t* ngram, int n, int delimiter_flag)
 	{
+	wcscpy (ngram,L"");
+	
 	Akshara * tempcursor;
 
 	tempcursor = current;
@@ -793,8 +794,6 @@ void write_ngram(struct akshara* current, wchar_t* ngram, int n, int delimiter_f
 		tempcursor = tempcursor->next;
 		x++;
 		}
-
-	//return ngram;
 	} // end write_ngram
 	
 /////////////////////////////////////////////////////
@@ -803,12 +802,7 @@ void free_list(struct akshara* header)
 	{
 	struct akshara *temp_ptr;
 	//temp_ptr = (Akshara *)malloc(sizeof(Akshara));
-
-	if(temp_ptr == NULL)
-   		{
-   		printf("nFailed to Allocate Memory");
- 		}
- 		
+	
  	while(header!=NULL)
  		{
  		temp_ptr=header;
