@@ -74,18 +74,15 @@
 #define DEFAULT_TEXT_SANSKRIT_UNICODE "../texts/sanskrit/mahayana"
 //#define DEFAULT_TEXT_SANSKRIT_DEVA "../texts/sanskrit/mahayana"
 
-#define MAX_STRING_LENGTH 256
-//#define MALLOC_MULT 64 // multiplier for memory allocation based
-						// on maximum chars per syllable
-						
-						
-#define MALLOC_MULT 128 // multiplier for memory allocation based
-						// on maximum chars per syllable
+#define MAX_STRING_LENGTH 256 // maximum length for filenames
 
-//#define MAXIMUM_N_SIZE 4096
-
-#define MAXIMUM_N_SIZE 256
+#define MAXIMUM_N_SIZE 256 // safe to set this to whatever the system can
+						   // handle, but it will increase memory usage
+						   
 #define MAX_CHARS_SYLL 10 // maximum number of UTF-8 chars in one syllable
+						  // including tshegs and other symbols --
+						  // remember that compound characters will count
+						  // each component as a UTF-8 char
 
 ////////////////////////////////////////
 
@@ -229,7 +226,6 @@ int main(int argc, char *argv[])
 	char * filenameout = "testout.txt";
 	char * out_dir1 = "../output";
 
-	//char * cmp_dir1 = "./taisho/T24";
 	char cmp_dir1[MAX_STRING_LENGTH];
 
 	// argv[0] is the name of the program
@@ -297,7 +293,6 @@ int main(int argc, char *argv[])
 
 /// end of reading arguments
 
-
 ///////////////
 /// SET UP
 ///////////////
@@ -308,6 +303,13 @@ FILE * fin;
 
 wchar_t c;
 wchar_t prev_char=0;
+
+// Your locale on your specific Unix/Linux machine
+// may have its own special name different from below --
+// you *must* use a UTF-8 locale or the program will
+// ignore all the files:
+// type 'locale -a' to list locales available on
+// your system, pick the most generic UTF-8 locale
 
 //setlocale(LC_ALL, "en_US.utf8");
 //setlocale(LC_ALL, "");
@@ -547,6 +549,7 @@ pid_t pid = fork(); // each file gets its own child process,
 					break;
 				////////////////////////
 				case SANSKRIT_DEVA: break;
+				// devanagari not yet implemented
 				////////////////////////
 				default: break;
 				} // end switch
@@ -556,20 +559,11 @@ pid_t pid = fork(); // each file gets its own child process,
 			bytes_read++;
 			}
 	///////////////////////////////////////////////////////////////////
-
-		//time(&end);        // completion time (user)
-		//second = CPU_TIME; // completion time (CPU)
-
-		//printf("Finished %s in %d seconds (user), %.2f seconds (CPU)\n", filetoopen, (int)(end - start), (second - first));	
 		
 		fclose(fin); // done with input file, close it
 
-	//fprintf(common_file, "\nAnalysis of %s:", filetoopen);
-	//fprintf(common_file, "\n\n");
 	///////////////////////////////////////////////////////////////////
 
-
-    
 		////////////////////////////////   
 		/// OPEN FILES FOR WRITING /////
 		////////////////////////////////   
@@ -596,10 +590,14 @@ pid_t pid = fork(); // each file gets its own child process,
 		////////////////////////////////   
 		////////////////////////////////       
  
- //wchar_t *ngram = malloc(128);
- wchar_t ngram[MAX_CHARS_SYLL*MAXIMUM_N_SIZE];// = malloc(128);
+ // The array below holds ngrams constructed from the individual syllables
+ // in the linked list. It *must* be large enough to hold up to the
+ // maximum size of n with the maximum number of UTF-8 characters.
+ // This array is therefore generally much larger than it needs to be,
+ // but it does not cost very much in RAM, as it is recycled for each
+ // n-gram (the array is cleared after writing the n-gram to the file).
  
- //ngram = malloc(MAX_CHARS_SYLL * (specialx+1) * sizeof(wchar_t));
+ wchar_t ngram[MAX_CHARS_SYLL*MAXIMUM_N_SIZE];
  
 		curr = head;
 		while(curr) 
@@ -626,7 +624,6 @@ pid_t pid = fork(); // each file gets its own child process,
 		second = CPU_TIME; // completion time (CPU)
 
 		printf("Finished %s in %d seconds (user), %.2f seconds (CPU)\n", filetoopen, (int)(end - start), (second - first));	
-
 
 		////////////////////////////////////////////////////////////////////////
 
@@ -775,7 +772,7 @@ else return SKT_SPECIAL;
 /////////////////////////////////////////////////////
 void write_ngram(struct akshara* current, wchar_t* ngram, int n, int delimiter_flag)
 	{
-	wcscpy (ngram,L"");
+	wcscpy (ngram,L""); // clear out the n-gram
 	
 	Akshara * tempcursor;
 
@@ -800,7 +797,6 @@ void write_ngram(struct akshara* current, wchar_t* ngram, int n, int delimiter_f
 void free_list(struct akshara* header)
 	{
 	struct akshara *temp_ptr;
-	//temp_ptr = (Akshara *)malloc(sizeof(Akshara));
 	
  	while(header!=NULL)
  		{
