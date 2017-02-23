@@ -613,7 +613,6 @@ pid_t pid = fork(); // each file gets its own child process,
       
       		curr = curr->next ;
 			}
-//free(ngram); // "double free or corruption"?
 		////////////////////////////////////////////////////////////////////////
 
 		for(specialx=0; specialx<ngram_integer; specialx++)
