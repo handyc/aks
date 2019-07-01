@@ -25,4 +25,4 @@ aks sanskrit_unicode 32 /home/handyc/texts
 You may need to change permissions on the scripts in order to allow yourself
 to run them.
 
-Questions, comments, please write to handyc@sdf.org
+Questions, comments, please write to handyc@sdf.org or search for my Leiden University address
