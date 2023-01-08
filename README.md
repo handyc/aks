@@ -25,4 +25,4 @@ aks sanskrit_unicode 32 /home/handyc/texts
 You may need to change permissions on the scripts in order to allow yourself
 to run them.
 
-The best way to reach me currently is through my Leiden University email account.
+The best way to reach me currently is through my SDF email account.
